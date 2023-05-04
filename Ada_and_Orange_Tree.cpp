@@ -6,16 +6,16 @@ const int LOGMAX = 20;
 
 int st[MAX][LOGMAX + 1];
 vector<int> gr[MAX];
+bool shade[MAX][251];
 int level[MAX];
 int nodeval[MAX];
-
-bitset<251> ans[MAX];
+int n, q, root;
 
 void dfs(int node, int par)
 {
+    shade[node][nodeval[node]] = 1;
     st[node][0] = par;
     level[node] = level[par] + 1;
-    ans[node][nodeval[node]] = true;
     for (int k = 1; k <= LOGMAX; ++k)
     {
         if (st[node][k - 1] != -1)
@@ -27,9 +27,15 @@ void dfs(int node, int par)
     {
         if (child != par)
         {
-
             dfs(child, node);
-            ans[node] |= ans[child];
+            shade[node][nodeval[child]] = 1;
+            for (int i = 0; i < 251; ++i)
+            {
+                if (shade[child][i] == 1)
+                {
+                    shade[node][i] = 1;
+                }
+            }
         }
     }
 }
@@ -59,40 +65,43 @@ int lca(int u, int v)
             v = st[v][k];
         }
     }
-
     return st[u][0];
 }
 
-void reset(int n)
+void reset()
 {
-    memset(nodeval, 0, sizeof nodeval);
+    //  memset(nodeval, 0, sizeof nodeval);
     memset(level, 0, sizeof level);
     memset(st, -1, sizeof st);
-    for (int i = 0; i <= MAX; ++i)
+    for (int i = 0; i <= n; ++i)
     {
         gr[i].clear();
-        ans[i].reset();
     }
+    memset(shade, 0, sizeof shade);
 }
 int32_t main()
 {
     ios::sync_with_stdio(false);
     cin.tie(0), cin.tie(0);
+
     int t;
-    cin >> t;
+    scanf("%d", &t);
+    // cin >> t;
     while (t--)
     {
-        int n, q, root;
-        cin >> n >> q >> root;
+        // cin >> n >> q >> root;
+        scanf("%d %d %d", &n, &q, &root);
         ++root;
         for (int i = 1; i <= n; ++i)
         {
-            cin >> nodeval[i];
+            //  cin >> nodeval[i];
+            scanf("%d", &nodeval[i]);
         }
         for (int i = 1; i < n; ++i)
         {
             int u, v;
-           cin >> u >> v;
+            scanf("%d %d", &u, &v);
+            // cin >> u >> v;
             u++, v++;
             gr[u].push_back(v);
             gr[v].push_back(u);
@@ -101,11 +110,20 @@ int32_t main()
         while (q--)
         {
             int u, v;
-            cin >> u >> v;
+            scanf("%d %d", &u, &v);
+            // cin >> u >> v;
             u++, v++;
             int LCA = lca(u, v);
-            cout << ans[LCA].count() << "\n";
+            int ans = 0;
+            for (int i = 0; i < 251; ++i)
+            {
+                if (shade[LCA][i] == 1)
+                {
+                    ans++;
+                }
+            }
+            printf("%d\n", ans);
         }
-        reset(n);
+        reset();
     }
 }
